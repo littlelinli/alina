@@ -1,4 +1,43 @@
-/* Общие стили */
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.transforms as transforms
+from torchvision import models
+
+# Optimize for mobile
+from torch.utils.mobile_optimizer import optimize_for_mobile
+
+def load_model():
+    model = models.mobilenet_v3_small(pretrained=True)  # Use a mobile-friendly model
+    model.classifier = nn.Sequential(
+        nn.Linear(model.classifier[0].in_features, 512),
+        nn.ReLU(),
+        nn.Dropout(0.2),
+        nn.Linear(512, 10)  # Adjust for the number of classes
+    )
+    return model
+
+def transform_image(image):
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),  # Standard for MobileNetV3
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    return transform(image).unsqueeze(0)  # Add batch dimension
+
+def save_mobile_model(model, path="alina_mobile.pt"):
+    model.eval()
+    scripted_model = torch.jit.script(model)
+    optimized_model = optimize_for_mobile(scripted_model)
+    optimized_model._save_for_lite_interpreter(path)
+    print(f"Optimized model saved to {path}")
+
+if __name__ == "__main__":
+    model = load_model()
+    save_mobile_model(model)
+
+# CSS updates
+css_code = """
 * {
     margin: 0;
     padding: 0;
@@ -10,9 +49,10 @@ body {
     background-color: #fff1f4;
     color: #333;
     line-height: 1.6;
-    max-width: 100%;
+    font-size: 1rem;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 10px;
+    padding: 0 20px;
 }
 
 h1 {
@@ -26,59 +66,27 @@ h1 {
     background: linear-gradient(45deg, #ff80ab, #ffb3c1);
     -webkit-background-clip: text;
     color: transparent;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-p {
-    font-family: 'Roboto', sans-serif;
-    font-size: 1.1rem;
-    color: #4a4a4a;
-    text-align: justify;
-    margin: 0 15px 20px;
-    line-height: 1.8;
-    padding: 0 20px;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-    display: flex;
-    justify-content: space-around;
-}
-
-nav ul li {
-    background-color: #ffffff;
-    color: #c56d91;
-    font-size: 1.2rem;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-nav ul li:hover {
-    background-color: #f8e6f7;
-    transform: translateX(10px);
-}
-
-footer {
-    background-color: #c56d91;
-    color: white;
-    text-align: center;
-    padding: 20px;
-    width: 100%;
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
 button {
     background-color: #ff80ab;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 15px 30px;
     font-size: 1.5rem;
     font-weight: bold;
     border-radius: 40px;
     cursor: pointer;
+    display: block;
+    margin: 20px auto;
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
@@ -86,34 +94,9 @@ button:hover {
     background-color: #ffb3c1;
     transform: translateY(-2px);
 }
+"""
 
-/* Адаптация для мобильных устройств */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2.5rem;
-    }
+with open("styles.css", "w") as f:
+    f.write(css_code)
 
-    p {
-        font-size: 1rem;
-        padding: 0 10px;
-    }
-
-    nav ul {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    nav ul li {
-        width: 100%;
-        text-align: center;
-    }
-
-    button {
-        font-size: 1.2rem;
-        padding: 8px 15px;
-    }
-
-    footer {
-        padding: 15px;
-    }
-}
+print("Updated CSS to make buttons and images responsive.")
