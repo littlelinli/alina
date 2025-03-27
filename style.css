@@ -123,3 +123,28 @@ footer {
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     margin-top: 20px;
 }
+/* Добавляем стили для кнопок */
+.nav a {
+    display: inline-block; /* Делаем ссылки блочными, чтобы стали кнопками */
+    padding: 10px 15px;
+    background-color: #007bff; /* Синий фон */
+    color: white; /* Белый текст */
+    text-decoration: none; /* Убираем подчёркивание */
+    border-radius: 5px; /* Закругляем углы */
+    text-align: center;
+    margin: 5px;
+}
+
+/* Делаем кнопки удобными для мобильных */
+@media (max-width: 768px) {
+    .nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .nav a {
+        width: 80%; /* Растягиваем на ширину экрана */
+        font-size: 18px; /* Увеличиваем размер шрифта */
+    }
+}
+
